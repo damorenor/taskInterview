@@ -19,23 +19,23 @@ void run(){
 
 void menu(){
 	short option;
-	printf("\tPRUEBA DESARROLLADOR C++
-			\nEscoja una tarea:\n
-			\t1. Ver info de la CPU\n
-			\t2. Buscar un archivo\n
-			\t3. Consultar la base de datos\n
-			\t4. Salir\n");
+	printf("\tPRUEBA DESARROLLADOR C++"
+			"\nEscoja una tarea:\n"
+			"\t1. Ver info de la CPU\n"
+			"\t2. Buscar un archivo\n"
+			"\t3. Consultar la base de datos\n"
+			"\t4. Salir\n");
 	scanf("%hd",&option);
 	switch(option){
 		case 1:
 			task1();
-			break();
+			break;
 		case 2:
 			task2();
-			break();
+			break;
 		case 3:
 			task3();
-			break();
+			break;
 		case 4:
 			exit(0);
 		default:
