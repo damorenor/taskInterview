@@ -1,12 +1,9 @@
 #include <iostream>
 #include <stdio.h>
-#include <chrono>
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
-
-#define pt boost::property_tree
 
 using namespace boost::asio;
 namespace pt = boost::property_tree;
@@ -15,15 +12,15 @@ using ip::tcp;
 using std::string;
 using std::cout;
 using std::cin;
+const string finish = "4";
 
-void task1();
-void task2();
-void task3();
-void send();
-string read();
-void menu();
+void task1(tcp::socket &socket);
+void task2(tcp::socket &socket);
+void task3(tcp::socket &socket);
+void send_(tcp::socket &socket, const string &query);
+string read_(tcp::socket &socket);
+void menu(tcp::socket &socket);
 void run();
-void printData();
 
 
 int main(){
@@ -33,12 +30,12 @@ int main(){
 
 void run(){
 	io_service io_service;
-	tcp::socket socket(io_service
-	socket.connect(tcp::endpoint(ip::address::from_string("127.0.0.1"),1234))
-	while(true) menu(socket);
+	tcp::socket socket_(io_service);
+	socket_.connect(tcp::endpoint(ip::address::from_string("127.0.0.1"),1234));
+	while(true) menu(socket_);
 }
 
-void menu(tcp::socket & socket){
+void menu(tcp::socket &socket){
 	short option;
 	printf("\tPRUEBA DESARROLLADOR C++"
 			"\nEscoja una tarea:\n"
@@ -58,15 +55,15 @@ void menu(tcp::socket & socket){
 			task3(socket);
 			break;
 		case 4:
-			const string finish = "4";
-			send(socket, finish);
+			send_(socket, finish);
 			exit(0);
+			break;
 		default:
-		printf("Ingrese una opción válida\n\n");
+			printf("Ingrese una opción válida\n\n");
 	}
 }
 
-void task1(tcp::socket & socket){
+void task1(tcp::socket &socket){
 	//	JSON query
 	pt::ptree query, response;
 	query.put("task",1);
@@ -77,11 +74,11 @@ void task1(tcp::socket & socket){
 
 	//Notify the server, that the json is ready
 	const string done = "1";
-	send(socket, done);
+	send_(socket, done);
 
 	//Recieves server confirmation
-	string answer = read(socket);
-	if(answer == "OK"){
+	string answer = read_(socket);
+	if(answer[0] == 'O' && answer[1] == 'K'){
 		read_json("response.json",response);
 		write_json(cout,response);
 	}else{
@@ -98,18 +95,18 @@ void task2(tcp::socket & socket){
 	string file;
 	printf("Porfavor, ingrese el archivo a buscar: ");
 	cin>>file;
-	query.put("detail",file)
+	query.put("detail",file);
 
 	//Write JSON file
 	pt::write_json("query.json",query);
 
 	//Notify the server, that the json is ready
 	const string done = "2";
-	send(socket, done);
+	send_(socket, done);
 
 	//Recieves server confirmation
-	string answer = read(socket);
-	if(answer == "OK"){
+	string answer = read_(socket);
+	if(answer[0] == 'O' && answer[1] == '1'){
 		read_json("response.json",response);
 		write_json(cout,response);
 	}else{
@@ -128,11 +125,11 @@ void task3(tcp::socket & socket){
 
 	//Notify the server, that the json is ready
 	const string done = "3";
-	send(socket, done);
+	send_(socket, done);
 
 	//Recieves server confirmation
-	string answer = read(socket);
-	if(answer == "OK"){
+	string answer = read_(socket);
+	if(answer[0] == 'O' && answer[1] == 'K'){
 		read_json("response.json",response);
 		write_json(cout,response);
 	}else{
@@ -149,6 +146,6 @@ string read_(tcp::socket & socket){
 	return data;
 }
 void send_(tcp::socket & socket, const string &query){
-	const msg = query +"\n";
+	const string msg = query +"\n";
 	boost::asio::write(socket, boost::asio::buffer(msg));
 }
