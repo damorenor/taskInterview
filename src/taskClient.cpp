@@ -4,11 +4,13 @@
 #include <boost/asio.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 #define pt boost::property_tree
 
 using namespace boost::asio;
 namespace pt = boost::property_tree;
+namespace pti = boost::posix_time;
 using ip::tcp;
 using std::string;
 using std::cout;
@@ -56,6 +58,8 @@ void menu(tcp::socket & socket){
 			task3(socket);
 			break;
 		case 4:
+			const string finish = "4";
+			send(socket, finish);
 			exit(0);
 		default:
 		printf("Ingrese una opción válida\n\n");
@@ -65,9 +69,8 @@ void menu(tcp::socket & socket){
 void task1(tcp::socket & socket){
 	//	JSON query
 	pt::ptree query, response;
-	q.put("task",1);
-	string hour = getHour();
-	q.put("hour",hour);
+	query.put("task",1);
+	query.put("hour",pti::second_clock::local_time());
 
 	//Write JSON file
 	pt::write_json("query.json",query);
@@ -80,7 +83,7 @@ void task1(tcp::socket & socket){
 	string answer = read(socket);
 	if(answer == "OK"){
 		read_json("response.json",response);
-		cout<<response.get<string>("detail")<<"\n";
+		write_json(cout,response);
 	}else{
 		printf("Error en el servidor\n\n");
 	}
@@ -88,14 +91,14 @@ void task1(tcp::socket & socket){
 void task2(tcp::socket & socket){
 	//	JSON query
 	pt::ptree query, response;
-	q.put("task",2);
-	string hour = getHour();
-	q.put("hour",hour);
+	query.put("task",2);
+	query.put("hour",pti::second_clock::local_time());
 
 	//Ask for the query file
 	string file;
 	printf("Porfavor, ingrese el archivo a buscar: ");
 	cin>>file;
+	query.put("detail",file)
 
 	//Write JSON file
 	pt::write_json("query.json",query);
@@ -108,7 +111,7 @@ void task2(tcp::socket & socket){
 	string answer = read(socket);
 	if(answer == "OK"){
 		read_json("response.json",response);
-		cout<<response.get<string>("detail")<<"\n";
+		write_json(cout,response);
 	}else{
 		printf("Error en el servidor\n\n");
 	}
@@ -117,9 +120,8 @@ void task2(tcp::socket & socket){
 void task3(tcp::socket & socket){
 	//	JSON query
 	pt::ptree query, response;
-	q.put("task",3);
-	string hour = getHour();
-	q.put("hour",hour);	
+	query.put("task",3);
+	query.put("hour",pti::second_clock::local_time());
 
 	//Write JSON file
 	pt::write_json("query.json",query);
@@ -132,17 +134,13 @@ void task3(tcp::socket & socket){
 	string answer = read(socket);
 	if(answer == "OK"){
 		read_json("response.json",response);
-		cout<<response.get<string>("detail")<<"\n";
+		write_json(cout,response);
 	}else{
 		printf("Error en el servidor\n\n");
 	}
 
 }
 
-string getHour(){
-	string hour = "123456";
-	return hour;
-}
 
 string read_(tcp::socket & socket){
 	boost::asio::streambuf buf;
@@ -151,5 +149,6 @@ string read_(tcp::socket & socket){
 	return data;
 }
 void send_(tcp::socket & socket, const string &query){
-	boost::asio::write(socket, boost::asio::buffer(query));
+	const msg = query +"\n";
+	boost::asio::write(socket, boost::asio::buffer(msg));
 }

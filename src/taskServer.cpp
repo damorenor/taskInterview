@@ -3,9 +3,12 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/asio.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 
 using namespace boost::asio;
 namespace pt = boost::property_tree;
+namespace pti = boost::posix_time;
 using ip::tcp;
 using std::string;
 using std::cout;
@@ -15,8 +18,11 @@ void task2();
 void task3();
 void menu();
 void run();
-void printData();
-
+pt::ptree getCpuInfo();
+pt::ptree getFileInfo();
+pt::ptree getDbInfo();
+string read_();
+void send_();
 
 int main(){
 	boost:::asio::io_service io_service;
@@ -32,7 +38,7 @@ void run(tcp::socket & socket){
 }
 
 void menu(tcp::socket & socket){
-	string query = read_(socket)
+	string query = read_(socket);
 	short option = (short) query[0]-'0';
 	switch(option){
 		case 1:
@@ -61,9 +67,9 @@ void task1(tcp::socket & socket){
 	
 	//prepare JSON response for client
 	response.put("task",1);
-	string hour = getHour();
-	response.put("hour",hour);
+	response.put("hour",pti::second_clock::local_time());
 	detailnode = getCpuInfo();
+	response.add_child("detail",detailnode);
 	write_json("response.json",response);
 
 	//send confirmation to client
@@ -83,10 +89,10 @@ void task2(tpc::socket & socket){
 	
 	//prepare JSON response for client
 	response.put("task",1);
-	string hour = getHour();
-	response.put("hour",hour);
+	response.put("hour",pti::second_clock::local_time());
 	const string file = query.get<string>("detail");
 	detailnode = getFileInfo();
+	response.add_child("detail",detailnode);
 	write_json("response.json",response);
 
 	//send confirmation to client
@@ -102,9 +108,9 @@ void task3(tcp::socket & socket){
 	
 	//prepare JSON response for client
 	response.put("task",1);
-	string hour = getHour();
-	response.put("hour",hour);
+	response.put("hour",pti::second_clock::local_time());
 	detailnode = getDbInfo();
+	response.add_child("detail",detailnode);
 	write_json("response.json",response);
 
 	//send confirmation to client
@@ -127,10 +133,6 @@ pt::tree getDbInfo(){
 	pt::ptree detail;
 	
 	return detail;
-}
-string getHour(){
-	hour = "1234"
-	return hour;
 }
 
 string read_(tcp::socket & socket){
