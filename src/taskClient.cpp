@@ -73,7 +73,7 @@ void task1(tcp::socket & socket){
 	pt::write_json("query.json",query);
 
 	//Notify the server, that the json is ready
-	const string done = "OK";
+	const string done = "1";
 	send(socket, done);
 
 	//Recieves server confirmation
@@ -101,7 +101,7 @@ void task2(tcp::socket & socket){
 	pt::write_json("query.json",query);
 
 	//Notify the server, that the json is ready
-	const string done = "OK";
+	const string done = "2";
 	send(socket, done);
 
 	//Recieves server confirmation
@@ -125,7 +125,7 @@ void task3(tcp::socket & socket){
 	pt::write_json("query.json",query);
 
 	//Notify the server, that the json is ready
-	const string done = "OK";
+	const string done = "3";
 	send(socket, done);
 
 	//Recieves server confirmation
